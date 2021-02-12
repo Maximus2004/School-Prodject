@@ -1,0 +1,108 @@
+#include <Servo.h>
+#define trigPin 7 // вход trig датчика подключаем к 7 пину Ардуино
+#define echoPin 6 //выход echo датчика подключаем к 6 пину Ардуино
+Servo myservo;
+int pos = 0; // положение сервопривода
+int servoDirection = 100;
+int servoDelay = 20;
+int motorIN1 = 2; //правое колесо направление вращения
+int motorEN1 = 3; //правое колесо разрешение вращения
+int motorIN2 = 4; // левое колесо направление вращения
+int motorEN2 = 5; // левое колесо разрешение вращения
+
+void setup() {
+  Serial.begin (9600);
+  myservo.attach(8); // подключаем сервомотор к 8-му пину
+  myservo.write(pos);
+  pinMode(motorIN1, OUTPUT);
+  pinMode(motorIN2, OUTPUT);
+  pinMode(motorEN1, OUTPUT);
+  pinMode(motorEN2, OUTPUT);
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+void forward(){
+  digitalWrite(motorIN1, HIGH);
+  digitalWrite(motorEN1, HIGH);
+  digitalWrite(motorIN2, HIGH);
+  digitalWrite(motorEN2, HIGH);
+}
+void backward() {
+  digitalWrite(motorIN1, LOW);
+  digitalWrite(motorIN2, LOW);
+  digitalWrite(motorEN1, HIGH);
+  digitalWrite(motorEN2, HIGH);
+}
+void turnLeft() {
+  digitalWrite(motorIN1, HIGH);
+  digitalWrite(motorEN1, HIGH);
+  digitalWrite(motorIN2, LOW);
+  digitalWrite(motorEN2, HIGH);
+}
+void turnRight() {
+  digitalWrite(motorIN1, LOW);
+  digitalWrite(motorEN1, HIGH);
+  digitalWrite(motorIN2, HIGH);
+  digitalWrite(motorEN2, HIGH);
+}
+int CheckDistance() {
+  long duration, distance;
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = (duration/2) / 29.1;
+  return distance;
+}
+void sweepServo1(){
+  for(pos = 10; pos < 40; pos += 1) {
+    myservo.write(pos);
+    delay(10);
+  }
+  int testDistance = CheckDistance();
+  if (testDistance >= 30 || testDistance <= 0) {
+    forward();
+  }
+  else {
+    turnRight();
+    Serial.print(testDistance);
+    Serial.println("cm");
+  }
+}
+void sweepServo2(){
+  for(pos = 40; pos < 80; pos += 1) {
+    myservo.write(pos);
+    delay(10);
+  }
+  int testDistance = CheckDistance();
+  if (testDistance >= 30 || testDistance <= 0) {
+    forward();
+  }
+  else {
+    turnRight();
+    Serial.print(testDistance);
+    Serial.println("cm");
+  }
+}
+void sweepServo3(){
+  for(pos = 80; pos < 120; pos += 1) {
+    myservo.write(pos);
+    delay(10);
+  }
+  int testDistance = CheckDistance();
+  if (testDistance >= 30 || testDistance <= 0) {
+    forward();
+  }
+  else {
+    turnRight();
+    Serial.print(testDistance);
+    Serial.println("cm");
+  }
+}
+void loop() {
+  sweepServo1();
+  sweepServo2();
+  sweepServo3();
+}
